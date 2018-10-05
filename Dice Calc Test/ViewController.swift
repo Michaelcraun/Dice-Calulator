@@ -96,7 +96,7 @@ class ViewController: UIViewController {
                 }
             } else if currentRoll.numOfDice > 0 {
                 let newNumber = "\(Dice.x)\(number)"
-                if let x = Int(newNumber) {
+                if let x = Int(newNumber), x <= 999999 {
                     Dice.x = x
                 }
             } else if currentRoll.operand == nil {
