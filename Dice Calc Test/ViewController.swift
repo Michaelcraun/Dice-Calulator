@@ -87,39 +87,35 @@ class ViewController: UIViewController {
         }
         
         guard let numberTitle = sender.title(for: .normal), let number = Int(numberTitle) else { return }
-        if currentRoll.operand == nil {
-            if let currentDie = currentRoll.die, currentDie == .dx {
-                let newX = "\(Dice.x)\(number)"
-                if let dieValue = Int(newX) {
-                    Dice.x = dieValue
+        
+        if let currentDie = currentRoll.die, currentDie == .dx {
+            print("CURRENT ROLL: operand: \(currentRoll.operand)")
+            if currentRoll.numOfDice > 0 && currentRoll.operand != nil {
+                let newNumber = "\(currentRoll.modifier)\(number)"
+                if let modifier = Int(newNumber) {
+                    currentRoll.modifier = modifier
                 }
-            } else {
+            } else if currentRoll.numOfDice > 0 {
+                let newNumber = "\(Dice.x)\(number)"
+                if let x = Int(newNumber) {
+                    Dice.x = x
+                }
+            } else if currentRoll.operand == nil {
                 let newNumber = "\(currentRoll.numOfDice)\(number)"
                 if let numOfDice = Int(newNumber), numOfDice <= 999 {
                     currentRoll.numOfDice = numOfDice
                 }
             }
-            let newNumber = "\(currentRoll.numOfDice)\(number)"
-            if let numOfDice = Int(newNumber), numOfDice <= 999 {
-                currentRoll.numOfDice = numOfDice
-            }
         } else {
-            if let currentDie = currentRoll.die, currentDie == .dx {
-                if currentRoll.operand == nil {
-                    let newX = "\(Dice.x)\(number)"
-                    if let dieValue = Int(newX) {
-                        Dice.x = dieValue
-                    }
-                } else {
-                    let newModifier = "\(currentRoll.modifier)\(number)"
-                    if let modifier = Int(newModifier) {
-                        currentRoll.modifier = Int(modifier)
-                    }
+            if currentRoll.operand == nil {
+                let newNumber = "\(currentRoll.numOfDice)\(number)"
+                if let numOfDice = Int(newNumber), numOfDice <= 999 {
+                    currentRoll.numOfDice = numOfDice
                 }
             } else {
-                let newModifier = "\(currentRoll.modifier)\(number)"
-                if let modifier = Int(newModifier) {
-                    currentRoll.modifier = Int(modifier)
+                let newNumber = "\(currentRoll.modifier)\(number)"
+                if let modifier = Int(newNumber) {
+                    currentRoll.modifier = modifier
                 }
             }
         }
