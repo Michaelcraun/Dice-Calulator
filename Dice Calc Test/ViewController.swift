@@ -89,7 +89,6 @@ class ViewController: UIViewController {
         guard let numberTitle = sender.title(for: .normal), let number = Int(numberTitle) else { return }
         
         if let currentDie = currentRoll.die, currentDie == .dx {
-            print("CURRENT ROLL: operand: \(currentRoll.operand)")
             if currentRoll.numOfDice > 0 && currentRoll.operand != nil {
                 let newNumber = "\(currentRoll.modifier)\(number)"
                 if let modifier = Int(newNumber) {
