@@ -44,6 +44,18 @@ enum Dice: String {
         }
     }
     
+    var average: Double {
+        switch self {
+        case .dx: return Double(Dice.x) / 2 + 0.5
+        case .d4: return 2.5
+        case .d6: return 3.5
+        case .d8: return 4.5
+        case .d10: return 5.5
+        case .d12: return 6.5
+        case .d20: return 10.5
+        }
+    }
+    
     var maxValue: Int {
         switch self {
         case .dx:   return Dice.x
@@ -56,9 +68,13 @@ enum Dice: String {
         }
     }
     
+//    static func average(_ roll: Roll) -> Int {
+//
+//    }
+    
     static func roll(_ roll: Roll) -> Int {
         guard let die = roll.die else { return 0 }
-        var result: Int  = 0
+        var result: Int = 0
         for _ in 1...roll.numOfDice {
             let rollResult = Int.random(in: 1...die.maxValue)
             result += rollResult
@@ -70,6 +86,22 @@ enum Dice: String {
         case .divide: return result / roll.modifier
         case .multiply: return result * roll.modifier
         case .subtract: return result - roll.modifier
+        }
+    }
+    
+    static func max(for roll: Roll) -> Int {
+        guard let die = roll.die else { return 0 }
+        var max: Int = 0
+        for _ in 1...roll.numOfDice {
+            max += die.maxValue
+        }
+        
+        guard let operand = roll.operand else { return max }
+        switch operand {
+        case .add: return max + roll.modifier
+        case .divide: return max / roll.modifier
+        case .multiply: return max * roll.modifier
+        case .subtract: return max - roll.modifier
         }
     }
 }

@@ -11,6 +11,8 @@ import UIKit
 enum Theme {
     static let labelBackgroundColor = UIColor(red: 165 / 255, green: 165 / 255, blue: 165 / 255, alpha: 1)
     static let defaultButtonColor = UIColor(red: 105 / 255, green: 105 / 255, blue: 105 / 255, alpha: 1)
+    static let dieButtonColor = UIColor(red: 85 / 255, green: 85 / 255, blue: 85 / 255, alpha: 1)
+    static let operatorButtonColor = UIColor(red: 65 / 255, green: 65 / 255, blue: 65 / 255, alpha: 1)
     static let rollButtonColor = UIColor(red: 129 / 255, green: 21 / 255, blue: 21 / 255, alpha: 1)
     
     enum Font {
@@ -18,15 +20,23 @@ enum Theme {
         static let color = UIColor(red: 252 / 255, green: 255 / 255, blue: 255 / 255, alpha: 1)
         static let family = "AvenirNextCondensed"
         static let regular = "\(Font.family)-Bold"
-        static let size: CGFloat = 20.0
+        static let defaultSize: CGFloat = 20.0
     }
 }
 
 @IBDesignable
 class DiceCalculator: UIView {
     // MARK: - UI Variables
-    private let outputLabel: CalculatorLabel = {
-        let label = CalculatorLabel()
+    private let halfLabel: CalculatorLabel = {
+        let label = CalculatorLabel(numOfLines: 0, labelHeight: 60.0, title: "HALF")
+        return label
+    }()
+    private let rollLabel: CalculatorLabel = {
+        let label = CalculatorLabel(numOfLines: 0, labelHeight: 60.0, title: "ROLL")
+        return label
+    }()
+    private let maximumLabel: CalculatorLabel = {
+        let label = CalculatorLabel(numOfLines: 0, labelHeight: 60.0, title: "MAX")
         return label
     }()
     private let inputLabel: CalculatorLabel = {
@@ -34,37 +44,58 @@ class DiceCalculator: UIView {
         return label
     }()
     private let dxButton: CalculatorButton = {
-        let button = CalculatorButton(title: "dx")
+        let button = CalculatorButton(
+            title: "dx",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
     private let d4Button: CalculatorButton = {
-        let button = CalculatorButton(title: "d4")
+        let button = CalculatorButton(
+            title: "d4",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
     private let d6Button: CalculatorButton = {
-        let button = CalculatorButton(title: "d6")
+        let button = CalculatorButton(
+            title: "d6",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
     private let d8Button: CalculatorButton = {
-        let button = CalculatorButton(title: "d8")
+        let button = CalculatorButton(
+            title: "d8",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
     private let d10Button: CalculatorButton = {
-        let button = CalculatorButton(title: "d10")
+        let button = CalculatorButton(
+            title: "d10",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
     private let d12Button: CalculatorButton = {
-        let button = CalculatorButton(title: "d12")
+        let button = CalculatorButton(
+            title: "d12",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
     private let d20Button: CalculatorButton = {
-        let button = CalculatorButton(title: "d20")
+        let button = CalculatorButton(
+            title: "d20",
+            buttonColor: Theme.dieButtonColor
+        )
         button.addTarget(self, action: #selector(diePressed(_:)), for: .touchUpInside)
         return button
     }()
@@ -119,22 +150,34 @@ class DiceCalculator: UIView {
         return button
     }()
     private let divideButton: CalculatorButton = {
-        let button = CalculatorButton(title: "÷")
+        let button = CalculatorButton(
+            title: "÷",
+            buttonColor: Theme.operatorButtonColor
+        )
         button.addTarget(self, action: #selector(operatorPressed(_:)), for: .touchUpInside)
         return button
     }()
     private let multiplyButton: CalculatorButton = {
-        let button = CalculatorButton(title: "x")
+        let button = CalculatorButton(
+            title: "x",
+            buttonColor: Theme.operatorButtonColor
+        )
         button.addTarget(self, action: #selector(operatorPressed(_:)), for: .touchUpInside)
         return button
     }()
     private let minusButton: CalculatorButton = {
-        let button = CalculatorButton(title: "-")
+        let button = CalculatorButton(
+            title: "-",
+            buttonColor: Theme.operatorButtonColor
+        )
         button.addTarget(self, action: #selector(operatorPressed(_:)), for: .touchUpInside)
         return button
     }()
     private let plusButton: CalculatorButton = {
-        let button = CalculatorButton(title: "+")
+        let button = CalculatorButton(
+            title: "+",
+            buttonColor: Theme.operatorButtonColor
+        )
         button.addTarget(self, action: #selector(operatorPressed(_:)), for: .touchUpInside)
         return button
     }()
@@ -166,6 +209,7 @@ class DiceCalculator: UIView {
     var shouldStartNewFormula = false
     var rolls = [Roll]()
     var formulaTotal: Int = 0
+    var formulaMaximum: Int = 0
     var currentRoll: Roll = Roll ( numOfDice: 0, die: nil, operand: nil, modifier: 0 )
     
     override func layoutSubviews() {
@@ -175,11 +219,16 @@ class DiceCalculator: UIView {
     override init(frame: CGRect) {
         super.init(frame: .zero)
         
+        let outputStack = horizontalStack
+        outputStack.addArrangedSubview(halfLabel)
+        outputStack.addArrangedSubview(rollLabel)
+        outputStack.addArrangedSubview(maximumLabel)
+        
         let horizontalStack1 = horizontalStack
-        horizontalStack1.addArrangedSubview(dxButton)
         horizontalStack1.addArrangedSubview(d4Button)
         horizontalStack1.addArrangedSubview(d6Button)
         horizontalStack1.addArrangedSubview(d8Button)
+        horizontalStack1.addArrangedSubview(dxButton)
         
         let horizontalStack2 = horizontalStack
         horizontalStack2.addArrangedSubview(d10Button)
@@ -209,7 +258,7 @@ class DiceCalculator: UIView {
         horizontalStack6.addArrangedSubview(zeroButton)
         horizontalStack6.addArrangedSubview(rollButton)
         
-        calculatorStack.addArrangedSubview(outputLabel)
+        calculatorStack.addArrangedSubview(outputStack)
         calculatorStack.addArrangedSubview(inputLabel)
         calculatorStack.addArrangedSubview(horizontalStack1)
         calculatorStack.addArrangedSubview(horizontalStack2)
@@ -324,10 +373,17 @@ class DiceCalculator: UIView {
             total += result
         }
         
+        var maximum = 0
+        for roll in rolls {
+            let max = Dice.max(for: roll)
+            maximum += max
+        }
+        
+        formulaMaximum = maximum
         formulaTotal = total
         currentRoll = Roll(numOfDice: 0, die: nil, operand: nil, modifier: 0)
         shouldStartNewFormula = true
-        updateOutputLabel()
+        updateOutputLabels()
     }
     
     func updateInputLabel(with rolls: [Roll]) {
@@ -352,15 +408,27 @@ class DiceCalculator: UIView {
         }
     }
     
-    func updateOutputLabel() {
-        outputLabel.text = "\(formulaTotal)"
+    func updateOutputLabels() {
+        halfLabel.text = "\(formulaTotal / 2)"
+        rollLabel.text = "\(formulaTotal)"
+        maximumLabel.text = "\(formulaMaximum)"
     }
 }
 
 @IBDesignable
 class CalculatorButton: UIButton {
-    @IBInspectable var buttonColor: UIColor = Theme.defaultButtonColor
-    @IBInspectable var fontColor: UIColor = Theme.Font.color
+    @IBInspectable var buttonColor: UIColor = Theme.defaultButtonColor {
+        didSet {
+            self.backgroundColor = buttonColor
+        }
+    }
+    
+    @IBInspectable var fontColor: UIColor = Theme.Font.color {
+        didSet {
+            self.titleLabel?.textColor = fontColor
+        }
+    }
+    
     @IBInspectable var buttonHeight: CGFloat = 50.0
     
     override func layoutSubviews() {
@@ -371,11 +439,13 @@ class CalculatorButton: UIButton {
         super.init(frame: .zero)
     }
     
-    convenience init(title: String) {
+    convenience init(title: String, buttonColor: UIColor = Theme.defaultButtonColor, fontColor: UIColor = Theme.Font.color) {
         self.init(frame: .zero)
         
         self.backgroundColor = buttonColor
-        self.titleLabel?.font = UIFont(name: Theme.Font.bold, size: Theme.Font.size)
+        self.buttonColor = buttonColor
+        self.fontColor = fontColor
+        self.titleLabel?.font = UIFont(name: Theme.Font.bold, size: Theme.Font.defaultSize)
         self.titleLabel?.textColor = fontColor
         self.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
         self.setTitle(title, for: .normal)
@@ -404,7 +474,7 @@ class RollButton: UIButton {
         super.init(frame: .zero)
         
         self.backgroundColor = buttonColor
-        self.titleLabel?.font = UIFont(name: Theme.Font.bold, size: Theme.Font.size)
+        self.titleLabel?.font = UIFont(name: Theme.Font.bold, size: Theme.Font.defaultSize)
         self.titleLabel?.textColor = fontColor
         self.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
         self.setTitle("Roll", for: .normal)
@@ -422,7 +492,13 @@ class RollButton: UIButton {
 @IBDesignable
 class CalculatorLabel: UILabel {
     @IBInspectable var labelHeight: CGFloat = 40.0
-    private var labelInsets: UIEdgeInsets = .zero
+    @IBInspectable var numOfLines: Int = 1
+    @IBInspectable var fontColor: UIColor = Theme.Font.color
+    @IBInspectable var fontSize: CGFloat = Theme.Font.defaultSize
+    @IBInspectable var labelColor: UIColor = Theme.labelBackgroundColor
+    @IBInspectable var title: String?
+    @IBInspectable private var labelInsets: UIEdgeInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 0.0, right: 10.0)
+    
     
     override var intrinsicContentSize: CGSize {
         let size = super.intrinsicContentSize
@@ -434,20 +510,28 @@ class CalculatorLabel: UILabel {
         super.init(frame: .zero)
     }
     
-    convenience init(insets: UIEdgeInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 0.0, right: 10.0)) {
+    convenience init(insets: UIEdgeInsets = UIEdgeInsets(top: 0.0, left: 10.0, bottom: 0.0, right: 10.0), numOfLines: Int = 1, fontColor: UIColor = Theme.Font.color, fontSize: CGFloat = Theme.Font.defaultSize, labelColor: UIColor = Theme.labelBackgroundColor, labelHeight: CGFloat = 40.0, title: String? = nil) {
         self.init(frame: .zero)
+        self.fontColor = fontColor
+        self.fontSize = fontSize
+        self.labelColor = labelColor
+        self.labelHeight = labelHeight
         self.labelInsets = insets
+        self.numOfLines = numOfLines
+        if let title = title {
+            self.title = title
+        }
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
         self.adjustsFontSizeToFitWidth = true
-        self.backgroundColor = Theme.labelBackgroundColor
-        self.font = UIFont(name: Theme.Font.regular, size: Theme.Font.size)
+        self.backgroundColor = labelColor
+        self.font = UIFont(name: Theme.Font.regular, size: fontSize)
         self.minimumScaleFactor = 0.5
-        self.textAlignment = .right
-        self.textColor = Theme.Font.color
+        self.textAlignment = .center
+        self.textColor = fontColor
         self.heightAnchor.constraint(equalToConstant: labelHeight).isActive = true
     }
     
