@@ -417,18 +417,8 @@ class DiceCalculator: UIView {
 
 @IBDesignable
 class CalculatorButton: UIButton {
-    @IBInspectable var buttonColor: UIColor = Theme.defaultButtonColor {
-        didSet {
-            self.backgroundColor = buttonColor
-        }
-    }
-    
-    @IBInspectable var fontColor: UIColor = Theme.Font.color {
-        didSet {
-            self.titleLabel?.textColor = fontColor
-        }
-    }
-    
+    @IBInspectable var buttonColor: UIColor = Theme.defaultButtonColor
+    @IBInspectable var fontColor: UIColor = Theme.Font.color 
     @IBInspectable var buttonHeight: CGFloat = 50.0
     
     override func layoutSubviews() {
